@@ -71,9 +71,9 @@ package body seven_segment_pkg is
 	is
 	begin
 		if lamp_mode = common_anode then
-			return (a => '0', b => '0', c => '0', d => '0', e => '0', f => '0', g => '0')
+			return (a => '0', b => '0', c => '0', d => '0', e => '0', f => '0', g => '0');
 		else
-			return (a => '1', b => '1', c => '1', d => '1', e => '1', f => '1', g => '1')
+			return (a => '1', b => '1', c => '1', d => '1', e => '1', f => '1', g => '1');
 		
 	end function lamps_off;
 
