@@ -9,14 +9,69 @@ entity adc_fsm is
 	
 	port (
 		adc_clk: in  	std_logic;
-		tail:		in		std_logic_vector(ADDR_WIDTH downto 0);
+		reset:	in		std_logic;
+		tail:		in		natural range 0 to 2**ADDR_WIDTH - 1;
 		eoc:		in		std_logic;
 		store:	out	std_logic;
 		start:	out 	std_logic;
-		head:		out	std_logic_vector(ADDR_WIDTH downto 0);
+		head:		out	natural range 0 to 2**ADDR_WIDTH - 1;
 	);
 
 
 architecture adc_to_ram of adc_fsm is
 	-- Put signals here.
+	type state_type is (start_adc, wait_data, check_space, write_data);
+	signal state, next_state : state_type := start_adc;
+	
+	function snake_cond(
+			h, t: in natural range 0 to 2**ADDR_WIDTH - 1
+		) return boolean
+	is
+	begin
+		if (t > h and t - h > 2) or (h > t and h - t > 2**ADDR_WIDTH - 1) then
+			return true;
+		
+		else
+			return false;
+			
+		end if;
+	end function snake_cond;
+	
 begin
+	-- store state
+	store_state: process(adc_clk, reset) is
+	begin
+		if reset = '0' then
+			state <= start_adc;
+		elsif rising_edge(adc_clk) then
+			state <= next_state;
+		end if;
+	end process store_state;
+	-- start adc
+	start <= '1' when state = start_adc else '0';
+	
+	-- waiting for data (loop)
+	set_state: process(state, head, tail, eoc) is
+	begin
+		case state is
+			when start_adc => next_state <= wait_data;
+			when wait_data =>
+				if eoc = '0' then
+					next_state <= wait_data;
+				else
+					next_state <= check_space;
+				end if;
+			when check_space =>
+				-- TODO: define snake_cond
+				if snake_cond(head, tail) then
+					next_state <= write_data;
+				else
+					next_state <= check_space;
+				end if;
+			when write_data => next_state <= start_adc;
+		end case;
+	end process set_state;
+	
+			
+	-- move head and write
+	
