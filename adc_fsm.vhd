@@ -28,12 +28,12 @@ architecture adc_to_ram of adc_fsm is
 		) return boolean
 	is
 	begin
+	   -- If true, go to write_data
+      -- If false, go to check_space
 		if (t > h and t - h > 2) or (h > t and h - t > 2**ADDR_WIDTH - 1) then
 			return true;
-		
 		else
 			return false;
-			
 		end if;
 	end function snake_cond;
 	
@@ -62,7 +62,6 @@ begin
 					next_state <= check_space;
 				end if;
 			when check_space =>
-				-- TODO: define snake_cond
 				if snake_cond(head, tail) then
 					next_state <= write_data;
 				else
@@ -72,6 +71,31 @@ begin
 		end case;
 	end process set_state;
 	
+	-- store, start, head
+	
+	-- TODO: Check if outputs are correct for each state
+	output_state: process(state, head, tail, eoc) is
+	begin
+		case state is
+			when start_adc => 	
+				store <= '0';
+				start <= '1';
+				-- Increment head pointer for new address
+				head <= head;
+			when wait_data => 	
+				store <= '0';
+				start <= '0';
+			when check_space =>
+				store <= '0';
+				start <= '0';
+			when write_data =>
+				store <= '1';
+				start <= '0';
+				-- Increment head pointer for new address
+				head <= head + 1;
+				
+		end case;
+	end process output_state;
 			
 	-- move head and write
 	
