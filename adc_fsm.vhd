@@ -16,6 +16,7 @@ entity adc_fsm is
 		start:	out 	std_logic;
 		head:		out	natural range 0 to 2**ADDR_WIDTH - 1;
 	);
+end entity adc_fsm;
 
 
 architecture adc_to_ram of adc_fsm is
@@ -98,4 +99,5 @@ begin
 	end process output_state;
 			
 	-- move head and write
-	
+
+end architecture adc_to_ram;
