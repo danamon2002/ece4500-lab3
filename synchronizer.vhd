@@ -44,11 +44,12 @@ architecture sync of synchronizer is
 	
 begin
 	
-	b2g: bin_to_gray port map(
-		-- Convert natural address to std_logic_vector
-		bin_in 		<= std_logic_vector(to_unsigned(addr_in, input_width)),
-		gray_out 	<= dff_in
-	);
+	b2g: bin_to_gray 
+		port map(
+			-- Convert natural address to std_logic_vector
+			bin_in 		=> std_logic_vector(to_unsigned(addr_in, input_width)),
+			gray_out 	=> dff_in
+		);
 	
 	-- First DFF
 	dff_out1 <= dff_in when rising_edge(clk_in);
@@ -57,10 +58,11 @@ begin
 	-- Third DFF
 	dff_out3 <= dff_out2 when rising_edge(clk_out);
 	
-	g2b: gray_to_bin port map(
-		gray_in	<= dff_out3,
-		bin_out	<= bin_out
-	);
+	g2b: gray_to_bin
+		port map(
+			gray_in	=> dff_out3,
+			bin_out	=> bin_out
+		);
 	
 	-- Convert std_logic_vector to unsigned integer address
 	addr_out <= to_integer(unsigned(bin_out));

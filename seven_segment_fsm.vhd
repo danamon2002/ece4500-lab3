@@ -1,19 +1,21 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity adc_fsm is
+entity seven_segment_fsm is
 	generic 
 	(
 		ADDR_WIDTH : natural := 6
 	);
-	
 	port (
 		seg_clk: in  	std_logic;
-		tail:		out	std_logic_vector(ADDR_WIDTH downto 0);
-		head:		in		std_logic_vector(ADDR_WIDTH downto 0);
+		head:		in		natural range 0 to 2**ADDR_WIDTH - 1;
+		tail:		out	natural range 0 to 2**ADDR_WIDTH - 1;
 	);
+end entity seven_segment_fsm;
 
 
-architecture adc_to_ram of adc_fsm is
+architecture fsm of seven_segment_fsm is
 	-- Put signals here.
 begin
+
+end architecture fsm;
