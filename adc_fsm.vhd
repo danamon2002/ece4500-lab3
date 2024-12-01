@@ -14,7 +14,7 @@ entity adc_fsm is
 		eoc:		in		std_logic;
 		store:	out	std_logic;
 		start:	out 	std_logic;
-		head:		out	natural range 0 to 2**ADDR_WIDTH - 1;
+		head:		out	natural range 0 to 2**ADDR_WIDTH - 1
 	);
 end entity adc_fsm;
 
