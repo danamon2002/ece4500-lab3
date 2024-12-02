@@ -4,14 +4,19 @@ use ieee.numeric_std.all;
 
 library work;
 use work.project3_pkg.all;
+use work.seven_segment_pkg.all;
 
 entity toplevel is
 	generic (
 			ADDR_WIDTH : natural := 12;
 			DATA_WIDTH : natural := 8
 		);
-	port( -- TODO: ADD INPUTS AND OUTPUTS
-			clk:	in std_logic;
+	port( -- Input 
+			adc_clock	:	in std_logic; -- 10 MHz clock
+			main_clock	: 	in std_logic; -- 50 MHz clock 
+			-- Output
+			-- Six Displays on DE-10 FPGA
+			seven_segment : out seven_segment_array
 		);
 end entity toplevel;
 
@@ -33,12 +38,11 @@ architecture top of toplevel is
 begin
 
    -- TODO: FIGURE OUT WHAT CHANNEL SELECT IS/SHOULD BE
-	-- CREATE 50 MHz CLOCK
 
 	-- PLL
 	pll_module: pll
 		port map (
-			inclk0 => clk,
+			inclk0 => adc_clock,
 			c0 => PLL_CLK
 		);
 	
@@ -77,7 +81,7 @@ begin
 	-- Dual Port Ram
 	RAM: dual_port_ram
 		generic map (
-			DATA_WIDTH =>,
+			DATA_WIDTH => DATA_WIDTH,
 			ADDR_WIDTH => ADDR_WIDTH
 		)
 		port map (
@@ -88,7 +92,7 @@ begin
 			we_a 	=> store, 
 			q_a	=> open,
 			-- SEVEN_SEGMENT
-			clk_b =>, 	-- 50 MHz clock
+			clk_b => main_clock, -- 50 MHz clock
 			addr_b	=> tail,
 			data_b	=> (others => '0'),
 			we_b 	=> '0',
@@ -100,12 +104,11 @@ begin
 	-- SEVEN_SEGMENT to ADC
 	SS_to_ADC: synchronizer
 		generic map (
-			ADDR_WIDTH 	=> ADDR_WIDTH,
-			input_width =>
+			ADDR_WIDTH 	=> ADDR_WIDTH
 		)
 		port map (
 			-- Inputs
-			clk_in	=>, 			-- SEVEN_SEGMENT CLOCK
+			clk_in	=> main_clock, 	-- SEVEN_SEGMENT CLOCK
 			clk_out 	=> ADC_CLK, -- ADC CLOCK
 			addr_in	=> tail,	 	-- TAIL FROM SEVEN_SEGMENT_FSM
 			-- Output
@@ -115,13 +118,12 @@ begin
 	-- ADC TO SEVEN_SEGMENT
 	ADC_to_SS: synchronizer
 		generic map (
-			ADDR_WIDTH 	=> ADDR_WIDTH,
-			input_width =>
+			ADDR_WIDTH 	=> ADDR_WIDTH
 		)
 		port map (
 			-- Inputs
 			clk_in	=> ADC_CLK, -- ADC CLOCK
-			clk_out 	=>, 			-- SEVEN_SEGMENT CLOCK
+			clk_out 	=> main_clock, 	-- SEVEN_SEGMENT CLOCK
 			addr_in	=> head, 	-- HEAD FROM ADC_FSM
 			-- Output
 			addr_out	=>	head_out -- HEAD TO SEVEN_SEGMENT
@@ -133,12 +135,12 @@ begin
 			ADDR_WIDTH => ADDR_WIDTH
 		)
 		port map (
-			seg_clk	=>, 			-- 50 MHz clock
+			seg_clk	=> main_clock, 	-- 50 MHz clock
 			head	=> head_out, 	-- FROM SYNCHRONIZER
 			tail	=> tail
-		);
-	
-	
-	
+		);	
+		
+	-- TODO: IMPLEMENT SEVEN SEGMENT OUT DRIVER
+	seven_segment[0] <=
 
 end toplevel;
