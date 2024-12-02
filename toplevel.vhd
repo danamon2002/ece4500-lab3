@@ -27,10 +27,13 @@ architecture top of toplevel is
 	signal head, tail : natural range 0 to 2**ADDR_WIDTH - 1;
 	-- ADC Output
 	signal adc_out : natural range 0 to 2**ADDR_WIDTH -1;
+	-- RAM Port B Output (SEVEN SEGMENT)
+	signal data_out : std_logic_vector(DATA_WIDTH - 1 downto 0);
 
 begin
 
-	-- TODO: ATTACH SIGNALS TO COMPONENTS
+   -- TODO: FIGURE OUT WHAT CHANNEL SELECT IS/SHOULD BE
+	-- CREATE 50 MHz CLOCK
 
 	-- PLL
 	pll_module: pll
@@ -44,7 +47,7 @@ begin
 		port map (
 				pll_clk 	=> PLL_CLK,
 				-- Channel Select
-				chsel => 1,
+				chsel => 0,
 				-- Start of Conversion
 				soc 	=> start,
 				-- Temperature select (1 = temperature, 0 = normal)
@@ -85,11 +88,11 @@ begin
 			we_a 	=> store, 
 			q_a	=> open,
 			-- SEVEN_SEGMENT
-			clk_b =>,
+			clk_b =>, 	-- 50 MHz clock
 			addr_b	=> tail,
-			data_b	=>,
-			we_b 	=>,
-			q_b 	=>
+			data_b	=> (others => '0'),
+			we_b 	=> '0',
+			q_b 	=> data_out
 		);
 	
 	-- Synchronizers
@@ -102,9 +105,9 @@ begin
 		)
 		port map (
 			-- Inputs
-			clk_in	=>, -- SEVEN_SEGMENT CLOCK
-			clk_out 	=>, -- ADC CLOCK
-			addr_in	=>, -- TAIL FROM SEVEN_SEGMENT_FSM
+			clk_in	=>, 			-- SEVEN_SEGMENT CLOCK
+			clk_out 	=> ADC_CLK, -- ADC CLOCK
+			addr_in	=> tail,	 	-- TAIL FROM SEVEN_SEGMENT_FSM
 			-- Output
 			addr_out	=> tail_out -- TAIL TO ADC_FSM
 		);
@@ -117,11 +120,11 @@ begin
 		)
 		port map (
 			-- Inputs
-			clk_in	=>, -- ADC CLOCK
-			clk_out 	=>, -- SEVEN_SEGMENT CLOCK
-			addr_in	=>, -- HEAD FROM ADC_FSM
+			clk_in	=> ADC_CLK, -- ADC CLOCK
+			clk_out 	=>, 			-- SEVEN_SEGMENT CLOCK
+			addr_in	=> head, 	-- HEAD FROM ADC_FSM
 			-- Output
-			addr_out	=>  -- HEAD TO SEVEN_SEGMENT
+			addr_out	=>	head_out -- HEAD TO SEVEN_SEGMENT
 		);
 	
 	-- SEVEN_SEGMENT_FSM
@@ -130,9 +133,9 @@ begin
 			ADDR_WIDTH => ADDR_WIDTH
 		)
 		port map (
-			seg_clk	=>,
-			head	=>,
-			tail	=>
+			seg_clk	=>, 			-- 50 MHz clock
+			head	=> head_out, 	-- FROM SYNCHRONIZER
+			tail	=> tail
 		);
 	
 	
