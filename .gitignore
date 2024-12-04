@@ -3,5 +3,7 @@
 !*.vhd
 !*.tcl
 !*.sdc
+!*.qsf
+!*.qpf
 !.gitignore
 !README.md

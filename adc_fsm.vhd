@@ -38,7 +38,10 @@ architecture adc_to_ram of adc_fsm is
 		end if;
 	end function snake_cond;
 	
+	signal internal_head: natural range 0 to 2**ADDR_WIDTH - 1;
+	
 begin
+	head <= internal_head;
 	-- store state
 	store_state: process(adc_clk, reset) is
 	begin
@@ -52,7 +55,7 @@ begin
 	start <= '1' when state = start_adc else '0';
 	
 	-- waiting for data (loop)
-	set_state: process(state, head, tail, eoc) is
+	set_state: process(state, internal_head, tail, eoc) is
 	begin
 		case state is
 			when start_adc => next_state <= wait_data;
@@ -63,7 +66,7 @@ begin
 					next_state <= check_space;
 				end if;
 			when check_space =>
-				if snake_cond(head, tail) then
+				if snake_cond(internal_head, tail) then
 					next_state <= write_data;
 				else
 					next_state <= check_space;
@@ -72,17 +75,17 @@ begin
 		end case;
 	end process set_state;
 	
-	-- store, start, head
+	-- store, start, internal_head
 	
 	-- TODO: Check if outputs are correct for each state
-	output_state: process(state, head, tail, eoc) is
+	output_state: process(state, internal_head, tail, eoc) is
 	begin
 		case state is
 			when start_adc => 	
 				store <= '0';
 				start <= '1';
-				-- Increment head pointer for new address
-				head <= head;
+				-- Increment internal_head pointer for new address
+				internal_head <= internal_head;
 			when wait_data => 	
 				store <= '0';
 				start <= '0';
@@ -92,12 +95,12 @@ begin
 			when write_data =>
 				store <= '1';
 				start <= '0';
-				-- Increment head pointer for new address
-				head <= head + 1;
+				-- Increment internal_head pointer for new address
+				internal_head <= internal_head + 1;
 				
 		end case;
 	end process output_state;
 			
-	-- move head and write
+	-- move internal_head and write
 
 end architecture adc_to_ram;
