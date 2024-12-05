@@ -13,7 +13,7 @@ entity synchronizer is
 		clk_out : in std_logic; -- Output clock
 		-- Head or Tail
 		addr_in	: in natural range 0 to 2**ADDR_WIDTH - 1; 
-		addr_out: out natural range 0 to 2**ADDR_WIDTH - 1;
+		addr_out: out natural range 0 to 2**ADDR_WIDTH - 1
 	);
 end entity synchronizer;
 
@@ -67,5 +67,5 @@ begin
 	-- Convert std_logic_vector to unsigned integer address
 	addr_out <= to_integer(unsigned(bin_out));
 	
-end architecture
+end architecture;
 	
