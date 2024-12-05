@@ -25,24 +25,24 @@ architecture adc_to_ram of adc_fsm is
 	signal state, next_state : state_type := start_adc;
 	
 	function snake_cond(
-			h, t: in natural range 0 to 2**ADDR_WIDTH - 1
-		) return boolean
-	is
+    h, t: in natural range 0 to 2**ADDR_WIDTH - 1
+		) return boolean is
 	begin
-	   -- If true, go to write_data
-      -- If false, go to check_space
-		-- If Head has reached max buffer size, set head to 0
-		if ((h > t) and not (tail == 0 and head == ADDR_WIDTH)) or (t > h and t - h > 2) then
---			if (h == ADDR_WIDTH)
---				h <= 0;
---			else
---				h <= h + 1;
---			end if;
-			return true;
-		else 
-			return false;
-		end if;
-	end function snake_cond;
+    -- If true, go to write_data
+    -- If false, go to check_space
+    -- If Head has reached max buffer size, set head to 0
+    if ((h > t) and not ((t = 0) and (h = ADDR_WIDTH))) or ((t > h) and (t - h > 2)) then
+        -- Uncomment if needed: Reset head or increment
+        -- if (h = ADDR_WIDTH) then
+        --    h <= 0;
+        -- else
+        --    h <= h + 1;
+        -- end if;
+        return true;
+    else 
+        return false;
+    end if;
+end function snake_cond;
 	
 	signal internal_head: natural range 0 to 2**ADDR_WIDTH - 1;
 	
@@ -74,10 +74,10 @@ begin
 			when check_space =>
 				if snake_cond(internal_head, tail) then
 					next_state <= write_data;
-					if(internal_head == ADDR_WIDTH) then
-						internal_head = 0;
+					if internal_head = ADDR_WIDTH then
+						internal_head <= 0;
 					else
-						internal_head = interna;_head + 1;
+						internal_head <= internal_head + 1;
 					end if; 
 				else
 					next_state <= check_space;
