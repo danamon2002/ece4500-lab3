@@ -39,22 +39,6 @@ architecture top of toplevel is
 	
 	signal counter: std_logic_vector(36 downto 0);
 	
-begin
-
-	do_count: process(main_clock, reset) is
-	begin
-		if reset = '0' then
-			counter <= (others => '0');
-		elsif rising_edge(main_clock) then
-			counter <= std_logic_vector(unsigned(counter) + 1);
-		end if;
-	end process do_count;
-
-	set_outs: for i in 0 to 5 generate
-		seven_segment(i) <= get_hex_digit(to_integer(unsigned(counter(4*i + 3 + 13 downto 4*i + 13)))); 
-	end generate set_outs;
-	
-	
 	function to_bcd (
 			data_value: in std_logic_vector(15 downto 0)
 		) return std_logic_vector
@@ -77,6 +61,24 @@ begin
 		end loop;
 		return ret;
 	end function to_bcd;
+
+	
+begin
+
+	do_count: process(main_clock, reset) is
+	begin
+		if reset = '0' then
+			counter <= (others => '0');
+		elsif rising_edge(main_clock) then
+			counter <= std_logic_vector(unsigned(counter) + 1);
+		end if;
+	end process do_count;
+
+	set_outs: for i in 0 to 5 generate
+		seven_segment(i) <= get_hex_digit(to_integer(unsigned(counter(4*i + 3 + 13 downto 4*i + 13)))); 
+	end generate set_outs;
+	
+	
 	
    -- TODO: FIGURE OUT WHAT CHANNEL SELECT IS/SHOULD BE
 --
