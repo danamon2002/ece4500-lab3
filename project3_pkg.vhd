@@ -33,7 +33,7 @@ package project3_pkg is
 			eoc:		in		std_logic;
 			store:	out	std_logic;
 			start:	out 	std_logic;
-			head:		out	natural range 0 to 2**ADDR_WIDTH - 1;
+			head:		out	natural range 0 to 2**ADDR_WIDTH - 1
 		);
 	end component adc_fsm;
 
@@ -67,7 +67,7 @@ package project3_pkg is
 		port (
 			seg_clk: in  	std_logic;
 			tail:		out	natural range 0 to 2**ADDR_WIDTH - 1;
-			head:		in		natural range 0 to 2**ADDR_WIDTH - 1;
+			head:		in		natural range 0 to 2**ADDR_WIDTH - 1
 		);
 	end component seven_segment_fsm;
 	
@@ -83,7 +83,7 @@ package project3_pkg is
 			clk_out : in std_logic; -- Output clock
 			-- Head or Tail
 			addr_in	: in natural range 0 to 2**ADDR_WIDTH - 1; 
-			addr_out: out natural range 0 to 2**ADDR_WIDTH - 1;
+			addr_out: out natural range 0 to 2**ADDR_WIDTH - 1
 		);
 	end component synchronizer;
 
