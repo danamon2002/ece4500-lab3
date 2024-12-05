@@ -40,16 +40,14 @@ begin
 	store_state: process(seg_clk, reset) is
 	begin
 		if reset = '0' then
-			state <= start_adc;
+			state <= read_data;
 		elsif rising_edge(seg_clk) then
 			state <= next_state;
 		end if;
 	end process store_state;
 	
-	--start 7seg
-	start <= '1' when state = read_data else '0';
 	
-	--waiting for data
+	--waiting for data (loop)
 	set_state: process(state, head, internal_tail) is
 	begin
 		case state is
@@ -63,7 +61,21 @@ begin
 		end case
 	end process set_state;
 
-			
+	output_state: process(state, head, internal_tail) is
+	begin
+		case state is
+			when read_data => 	
+				store <= '0';
+				start <= '1';
+				-- Increment internal_head pointer for new address
+				internal_tail <= internal_tail;
+			when set_display => 	
+				set   <= '1';
+				start <= '0';
+				internal_tail <= internal_tail + 1; 
+		end case;
+	end process output_state;
+
 
 
 end architecture ram_to_seg;
