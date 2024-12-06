@@ -47,7 +47,7 @@ end function snake_cond;
 	signal internal_head: natural range 0 to 2**ADDR_WIDTH - 1;
 	
 begin
-	head <= internal_head;
+	--head <= internal_head;
 	-- store state
 	store_state: process(adc_clk, reset) is
 	begin
@@ -58,7 +58,7 @@ begin
 		end if;
 	end process store_state;
 	-- start adc
-	start <= '1' when state = start_adc else '0';
+	-- start <= '1' when state = start_adc else '0';
 	
 	-- waiting for data (loop)
 	set_state: process(state, internal_head, tail, eoc) is

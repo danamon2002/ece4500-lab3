@@ -1,5 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 package project3_pkg is
 
@@ -65,6 +66,7 @@ package project3_pkg is
 			ADDR_WIDTH : natural := 6
 		);
 		port (
+			reset:	in 	std_logic;
 			seg_clk: in  	std_logic;
 			tail:		out	natural range 0 to 2**ADDR_WIDTH - 1;
 			head:		in		natural range 0 to 2**ADDR_WIDTH - 1
@@ -87,6 +89,10 @@ package project3_pkg is
 		);
 	end component synchronizer;
 
+	function to_bcd (
+		data_value:		in std_logic_vector(15 downto 0)
+	) return std_logic_vector;
+	
 end project3_pkg;
 
 package body project3_pkg is
@@ -104,6 +110,61 @@ package body project3_pkg is
 	-- Procedure Declaration (optional)
 
 	-- Procedure Body (optional)
+
+	function to_bcd (
+		 data_value: in std_logic_vector(15 downto 0)
+	) return std_logic_vector is
+		 variable ret: std_logic_vector(19 downto 0);
+		 variable temp: std_logic_vector(data_value'range);
+	begin
+		 -- Initialize temporary variables
+		 temp := data_value;
+		 ret := (others => '0');
+		 
+		 -- Loop through all the bits of the data_value
+		 for i in data_value'range loop
+			  -- Apply BCD conversion logic
+			  for j in 0 to ret'length/4 - 1 loop
+					-- Check and adjust BCD values if necessary
+					if unsigned(ret(4*j + 3 downto 4*j)) >= 5 then
+						 ret(4*j + 3 downto 4*j) := std_logic_vector(
+							  unsigned(ret(4*j + 3 downto 4*j)) + 3
+						 );
+					end if;
+			  end loop;
+
+			  -- Shift and update ret and temp for next iteration
+			  ret := ret(ret'high - 1 downto 0) & temp(temp'high);
+			  temp := temp(temp'high - 1 downto 0) & '0';
+		 end loop;
+		 
+		 -- Return the BCD result
+		 return ret;
+	end function to_bcd;
+
+	
+--	function to_bcd (
+--			data_value: in std_logic_vector(15 downto 0)
+--		) return std_logic_vector
+--	is
+--		variable ret: std_logic_vector(19 downto 0);
+--		variable temp: std_logic_vector(data_value'range);
+--	begin
+--		temp := data_value;
+--		ret := (others => '0');
+--		for i in data_value'range loop
+--			for j in 0 to ret'length/4 - 1 loop
+--				if unsigned(ret(4*j + 3 downto 4*j)) >= 5 then
+--					ret(4*j + 3 downto 4*j) :=
+--						std_logic_vector(
+--							unsigned(ret(4*j + 3 downto 4 * j)) + 3);
+--				end if;
+--			end loop;
+--			ret := ret(ret'high -1 downto 0) & temp(temp'high);
+--			temp := temp(temp'high - 1 downto 0) & '0';
+--		end loop;
+--		return ret;
+--	end function to_bcd;
 
 end project3_pkg;
 
