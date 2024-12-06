@@ -61,7 +61,7 @@ begin
 		--seven_segment(i) <= get_hex_digit(to_integer(unsigned(bcd)) rem (10**(i + 1)) / 10**i);	
 	end generate set_outs;
 	
-		bcd <= "0000" & to_bcd("1111" & data_out);
+		bcd <= "0000" & to_bcd("0000" & data_out);
 	
 	-- PLL 
 	pll_module: pll
