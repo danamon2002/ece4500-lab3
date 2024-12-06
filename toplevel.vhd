@@ -8,8 +8,8 @@ use work.seven_segment_pkg.all;
 
 entity toplevel is
 	generic (
-			ADDR_WIDTH : natural := 12;
-			DATA_WIDTH : natural := 8
+			ADDR_WIDTH : natural := 6;
+			DATA_WIDTH : natural := 12
 		);
 	port( -- Input 
 			adc_clock	:	in std_logic; -- 10 MHz clock
@@ -38,7 +38,7 @@ architecture top of toplevel is
 
 	
 	signal counter: std_logic_vector(36 downto 0);
-	signal bcd : std_logic_vector(19 downto 0);
+	signal bcd : std_logic_vector(23 downto 0);
 	
 	--type out_arr_type is array range (0 to 6) of natural range 0 to 2**ADDR_WIDTH - 1;
 	
@@ -57,11 +57,11 @@ begin
 --	end process do_count;
 
 	set_outs: for i in 0 to 5 generate
-		--seven_segment(i) <= get_hex_digit(to_integer(unsigned(counter(4*i + 3 + 13 downto 4*i + 13))));
-		bcd <= to_bcd("00000000" & data_out);
-		
-		seven_segment(i) <= get_hex_digit(to_integer(unsigned(bcd)) rem (10**(i + 1)) / 10**i);	
+		seven_segment(i) <= get_hex_digit(to_integer(unsigned(bcd(4*i + 3 downto 4*i))));
+		--seven_segment(i) <= get_hex_digit(to_integer(unsigned(bcd)) rem (10**(i + 1)) / 10**i);	
 	end generate set_outs;
+	
+		bcd <= "0000" & to_bcd("1111" & data_out);
 	
 	-- PLL 
 	pll_module: pll

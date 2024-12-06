@@ -41,7 +41,7 @@ package project3_pkg is
 	component dual_port_ram is
 		generic 
 		(
-			DATA_WIDTH : natural := 8;
+			DATA_WIDTH : natural := 12;
 			ADDR_WIDTH : natural := 6
 		);
 
