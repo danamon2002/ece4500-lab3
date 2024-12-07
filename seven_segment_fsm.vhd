@@ -21,18 +21,27 @@ architecture ram_to_seg of seven_segment_fsm is
 	type state_type is (read_data, set_display);
 	signal state, next_state : state_type := read_data;
 	
+	constant top_address: positive := 2**ADDR_WIDTH - 1;
+	
 	function snake_cond(
-			h, t: in natural range 0 to 2**ADDR_WIDTH - 1
+    h, t: in natural range 0 to 2**ADDR_WIDTH - 1
 		) return boolean
 	is
 	begin
-		if ((t > h) and not (h = ADDR_WIDTH and t = 0)) or ((t > h) and (t - h > 2)) then
+		 -- If true, go to write_data
+		 -- If false, go to check_space
+		 -- If Head has reached max buffer size, set head to 0
+		if h > t and h - t > 1 then
 			return true;
-			
-		else
-			return false;
-			
+		elsif t > h and not (t = top_address and h = 1) then
+			return true;
+		elsif t > h and not (t = top_address - 1 and h = 0) then
+			return true;
 		end if;
+		
+		return false;
+		 
+	 
 	end function snake_cond;
 	
 	signal internal_tail: natural range 0 to 2**ADDR_WIDTH - 1;
@@ -64,17 +73,19 @@ begin
 		end case;
 	end process set_state;
 
-	output_state: process(state, head, internal_tail) is
+	output_state: process(seg_clk, reset) is
 	begin
-	-- TODO: FINISH THIS!!!!
-		case state is
-			when read_data => 	
-				--tail stays in place.
-				internal_tail <= internal_tail;
-			when set_display => 
-				-- Increment internal_tail pointer for new address.
-				internal_tail <= internal_tail + 1; 
-		end case;
+		if reset = '0' then
+			internal_tail <= 2**ADDR_WIDTH - 2;
+		elsif rising_edge(seg_clk) then
+			if state = set_display then
+				if internal_tail = 2**ADDR_WIDTH - 1 then
+					internal_tail <= 0;
+				else
+					internal_tail <= internal_tail + 1;
+				end if;
+			end if;
+		end if;
 	end process output_state;
 
 

@@ -23,9 +23,9 @@ end entity toplevel;
 
 
 architecture top of toplevel is
-
+	attribute keep: boolean;
 	-- TODO: CREATE SIGNALS FOR COMPONENTS
-	signal PLL_CLK, ADC_CLK : std_logic;
+	signal PLL_CLK: std_logic;
 	signal eoc, start, store : std_logic;
 	-- Output from Synchronizers
 	signal head_out, tail_out : natural range 0 to 2**ADDR_WIDTH - 1;
@@ -36,6 +36,10 @@ architecture top of toplevel is
 	-- RAM Port B Output (SEVEN SEGMENT)
 	signal data_out : std_logic_vector(DATA_WIDTH - 1 downto 0);
 
+	attribute keep of head_out: signal is true;
+	attribute keep of tail_out: signal is true;
+	attribute keep of head: signal is true;
+	attribute keep of tail: signal is true;
 	
 	signal counter: std_logic_vector(36 downto 0);
 	signal bcd : std_logic_vector(23 downto 0);
@@ -44,6 +48,10 @@ architecture top of toplevel is
 	
 	signal temp : natural range 0 to 2**ADDR_WIDTH - 1;
 	signal temp2 : natural range 0 to 2**ADDR_WIDTH - 1;
+	
+	signal adc_out_vect: std_logic_vector(DATA_WIDTH - 1 downto 0);
+	
+	alias ADC_CLK: std_logic is PLL_CLK;
 	
 begin
 
@@ -85,7 +93,7 @@ begin
 				-- End of Conversion
 				eoc 	=> eoc,
 				-- Clock Output from Clock Divider
-				clk_dft 	=> ADC_CLK
+				clk_dft 	=> open --ADC_CLK
 		); 
 	
 	-- ADC_FSM
@@ -95,7 +103,7 @@ begin
 		)
 		port map (
 			adc_clk 	=> ADC_CLK,
-			reset 	=> '1',
+			reset 	=> reset,
 			tail		=> tail_out,
 			eoc		=> eoc,
 			store		=> store,
@@ -103,6 +111,8 @@ begin
 			head		=> head
 		);
 	
+		adc_out_vect <= std_logic_vector(to_unsigned(adc_out, DATA_WIDTH));
+
 	-- Dual Port Ram
 	RAM: dual_port_ram
 		generic map (
@@ -113,7 +123,7 @@ begin
 			-- ADC 
 			clk_a	=> ADC_CLK,
 			addr_a	=> head,
-			data_a 	=> std_logic_vector(to_unsigned(adc_out, DATA_WIDTH)),
+			data_a 	=> adc_out_vect,
 			we_a 	=> store, 
 			q_a	=> open,
 			-- SEVEN_SEGMENT
@@ -160,7 +170,7 @@ begin
 			ADDR_WIDTH => ADDR_WIDTH
 		)
 		port map (
-			reset 	=> '0',
+			reset 	=> reset,
 			seg_clk	=> main_clock, 	-- 50 MHz clock
 			head	=> head_out, 	-- FROM SYNCHRONIZER
 			tail	=> tail

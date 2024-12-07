@@ -20,6 +20,14 @@ for { set i 0 } { ${i} < 6 } { incr i } {
 	}
 }
 
+foreach { signal pin } { clock_main P11 clock_adc N5 } {
+	set_location_assignment PIN_${pin} -to ${signal}
+	set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to ${signal}
+}
+
+set_location_assignment PIN_B8 -to reset
+set_instance_assignment -name IO_STANDARD "3.3 V SCHMITT TRIGGER" -to reset
+
 #
 #for { set i 0 } { ${i} < 7 } { incr i } {
 #	set switch_pin [ lindex ${seven_seg_1} ${i} ]
